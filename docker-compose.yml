@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  pocket-http-gateway:
+    build: .
+    volumes:
+      - /usr/src/app/node_modules
+      - .:/usr/src/app
+    ports:
+      - 3000:${HTTP_PORT}
+      - 9229:9229
+    command: npm run start:dev
+    env_file:
+      - .env
+    networks:
+      - pocket-network
+networks:
+  pocket-network:
+    name: pocket-network
+    driver: bridge
