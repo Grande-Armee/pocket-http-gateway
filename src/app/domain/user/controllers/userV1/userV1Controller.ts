@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 
-import { UserService } from '../services/user';
+import { UserV1Service } from '../../services/userV1/userV1Service';
 
 @Controller({ version: '1', path: '/users' })
 export class UserV1Controller {
-  public constructor(private readonly userService: UserService) {}
+  public constructor(private readonly userService: UserV1Service) {}
 
   @Get()
   public getHello(): string {

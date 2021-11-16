@@ -1,8 +1,11 @@
-version: '3.7'
+version: '3.8'
 
 services:
   pocket-http-gateway:
-    build: .
+    build:
+      context: .
+      target: development
+    container_name: pocket-http-gateway
     volumes:
       - /usr/src/app/node_modules
       - .:/usr/src/app
@@ -14,7 +17,7 @@ services:
       - .env
     networks:
       - pocket-network
+
 networks:
   pocket-network:
-    name: pocket-network
-    driver: bridge
+    external: true

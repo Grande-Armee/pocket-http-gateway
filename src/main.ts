@@ -1,10 +1,16 @@
-import { VersioningType } from '@nestjs/common';
+import './pathAliases';
+
+import { LoggerService } from '@grande-armee/pocket-common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { fastifyHelmet as helmet } from 'fastify-helmet';
 
-import { AppModule } from './app/app';
+import { AppModule } from './app/appModule';
+import { HttpConfig, HTTP_CONFIG } from './app/shared/http/providers/httpConfig';
+import { setupCors } from './setup/setupCors';
+import { setupDocs } from './setup/setupDocs';
+import { setupHttpVersioning } from './setup/setupHttpVersioning';
+import { setupSecurity } from './setup/setupSecurity';
+import { setupTraceIdHook } from './setup/setupTraceIdHook';
 
 async function bootstrap(): Promise<void> {
   const httpAdapter = new FastifyAdapter();
@@ -13,32 +19,22 @@ async function bootstrap(): Promise<void> {
     bufferLogs: true,
   });
 
-  app.enableCors();
+  const logger = app.get(LoggerService);
 
-  app.enableVersioning({
-    defaultVersion: '1',
-    type: VersioningType.URI,
-  });
+  app.useLogger(logger);
+  app.flushLogs();
 
-  await httpAdapter.register(helmet);
+  await setupCors(app);
+  await setupSecurity(app, httpAdapter);
+  await setupHttpVersioning(app);
+  await setupTraceIdHook(app, httpAdapter);
+  await setupDocs(app);
 
-  // TODO: separate file
-  const config = new DocumentBuilder()
-    .setTitle('Pocket')
-    .setDescription('The Pocket HTTP API description')
-    .setVersion('1.0')
-    .build();
+  const { host, port } = app.get<HttpConfig>(HTTP_CONFIG);
 
-  const document = SwaggerModule.createDocument(app, config);
+  await app.listen(port, host);
 
-  SwaggerModule.setup('docs', app, document, {
-    staticCSP: {
-      'script-src': `'self' 'unsafe-inline'`,
-    },
-  });
-
-  // TODO: config
-  await app.listen(Number(process.env.HTTP_PORT), String(process.env.HTTP_HOST));
+  logger.info('HTTP server successfully started.', { port, host });
 }
 
 bootstrap();
