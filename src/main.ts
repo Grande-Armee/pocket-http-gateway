@@ -1,11 +1,12 @@
 import './pathAliases';
 
 import { LoggerService } from '@grande-armee/pocket-common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 
 import { AppModule } from './app/appModule';
-import { HttpConfig, HTTP_CONFIG } from './app/shared/http/providers/httpConfig';
+import { HttpConfig, HTTP_CONFIG } from './app/http/providers/httpConfig';
 import { setupCors } from './setup/setupCors';
 import { setupDocs } from './setup/setupDocs';
 import { setupHttpVersioning } from './setup/setupHttpVersioning';
@@ -29,6 +30,15 @@ async function bootstrap(): Promise<void> {
   await setupHttpVersioning(app);
   await setupTraceIdHook(app, httpAdapter);
   await setupDocs(app);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      forbidUnknownValues: true,
+      whitelist: true,
+      disableErrorMessages: false,
+    }),
+  );
 
   const { host, port } = app.get<HttpConfig>(HTTP_CONFIG);
 

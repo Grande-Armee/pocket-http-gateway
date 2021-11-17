@@ -6,6 +6,7 @@ export const setupDocs = async (app: INestApplication): Promise<INestApplication
     .setTitle('Pocket')
     .setDescription('The Pocket HTTP API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
