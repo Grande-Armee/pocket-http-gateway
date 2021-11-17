@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 
-import { DomainModule } from './domain/domainModule';
+import { HttpModule } from './http/httpModule';
 import { SharedModule } from './shared/sharedModule';
 
 @Module({
-  imports: [SharedModule, DomainModule],
+  imports: [SharedModule, HttpModule],
 })
 export class AppModule {}

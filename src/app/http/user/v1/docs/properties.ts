@@ -13,3 +13,21 @@ export const UserPasswordApiProperty = createApiProperty({
 export const UserEmailApiProperty = createEmailApiProperty({
   description: `User's email`,
 });
+
+export const UserIsActiveApiProperty = createApiProperty({
+  description: 'User account activation status.',
+  type: Boolean,
+  example: true,
+});
+
+export const UserRoleApiProperty = createApiProperty({
+  description: `User's role.`,
+  type: String,
+  example: 'USER',
+});
+
+export const UserLanguageApiProperty = createApiProperty({
+  description: `User's language.`,
+  type: String,
+  example: 'en',
+});

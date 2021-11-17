@@ -5,7 +5,7 @@ const srcPath = path.resolve(__dirname, '..', 'dist');
 
 addAliases({
   '@src': srcPath,
-  '@domain': path.join(srcPath, 'app', 'domain'),
+  '@http': path.join(srcPath, 'app', 'http'),
   '@shared': path.join(srcPath, 'app', 'shared'),
   '@integration': path.join(srcPath, 'app', 'integration'),
 });
