@@ -1,11 +1,13 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-import { AuthPayload } from '../../interfaces';
+import { AuthService } from '../../services/auth/authService';
 
 export class InvalidTokenException {}
 
 @Injectable()
 export class BearerTokenGuard implements CanActivate {
+  public constructor(private readonly authService: AuthService) {}
+
   private validateAndParseToken(authHeaderContent: string): string {
     if (typeof authHeaderContent !== 'string') {
       return '';
@@ -30,10 +32,7 @@ export class BearerTokenGuard implements CanActivate {
         return false;
       }
 
-      const authPayload: AuthPayload = {
-        userId: 'e46c11a8-8893-412d-bc8b-60753a98e45c',
-        role: 'USER',
-      };
+      const authPayload = await this.authService.verifyToken(token);
 
       request.authPayload = authPayload;
 
