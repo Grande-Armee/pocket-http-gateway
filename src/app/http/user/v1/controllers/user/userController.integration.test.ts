@@ -10,6 +10,7 @@ class AuthServiceFake {
 }
 
 const baseUrl = '/v1/users';
+const loginUrl = `${baseUrl}/login`;
 
 describe(`UserV1Controller (${baseUrl})`, () => {
   let app: INestApplication;
@@ -168,6 +169,85 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       });
 
       expect(response.statusCode).toBe(HttpStatus.CREATED);
+    });
+  });
+
+  describe('Login user', () => {
+    it('throws an error when some fields in request body are missing', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { email: 'email@gmail.com' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${loginUrl}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when value of email field is not an email', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { email: 'email', password: '123456789012345' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${loginUrl}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when value of password field has less than 12 characters', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { email: 'email@gmail.com', password: '123' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${loginUrl}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when email is valid and password has more than 12 characters', async () => {
+      expect.assertions(1);
+
+      const body = { email: 'email@gmail.com', password: '123456789012345' };
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${loginUrl}`,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
     });
   });
 

@@ -67,7 +67,7 @@ export class UserV1Controller {
     type: LoginUserResponseV1Dto,
   })
   @HttpCode(HttpStatus.OK)
-  @Post()
+  @Post('/login')
   public async loginUser(@Body() loginUserBody: LoginUserBodyV1Dto): Promise<LoginUserResponseV1Dto> {
     const { email, password } = loginUserBody;
 
