@@ -381,7 +381,7 @@ describe(`UserResourceV1Controller (${baseUrl})`, () => {
       const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const response = await httpHelper.request({
-        method: HttpMethod.PUT,
+        method: HttpMethod.DELETE,
         url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
       });
 
