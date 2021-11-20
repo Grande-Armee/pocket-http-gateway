@@ -12,7 +12,7 @@ export class FindUserResourceParamsV1Dto {
   public readonly resourceId: string;
 }
 
-export class FindUserResourceQueriesV1Dto {
+export class FindUserResourceQueryV1Dto {
   @IsUUID('4')
   @Expose()
   @UserIdApiProperty()

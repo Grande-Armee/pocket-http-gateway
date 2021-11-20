@@ -11,6 +11,7 @@ import {
   Put,
   Query,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -30,19 +31,19 @@ import { AuthPayload } from '@http/auth/interfaces';
 import {
   CreateUserResourceBodyV1Dto,
   CreateUserResourceResponseV1Dto,
-  CreateUserResourceQueriesV1Dto,
+  CreateUserResourceQueryV1Dto,
 } from '../../dtos/createUserResourceDto';
 import {
   FindUserResourceParamsV1Dto,
   FindUserResourceResponseV1Dto,
-  FindUserResourceQueriesV1Dto,
+  FindUserResourceQueryV1Dto,
 } from '../../dtos/findUserResourceDto';
-import { RemoveUserResourceParamsV1Dto, RemoveUserResourceQueriesV1Dto } from '../../dtos/removeUserResourceDto';
+import { RemoveUserResourceParamsV1Dto, RemoveUserResourceQueryV1Dto } from '../../dtos/removeUserResourceDto';
 import {
   UpdateUserResourceBodyV1Dto,
   UpdateUserResourceParamsV1Dto,
   UpdateUserResourceResponseV1Dto,
-  UpdateUserResourceQueriesV1Dto,
+  UpdateUserResourceQueryV1Dto,
 } from '../../dtos/updateUserResourceDto';
 import { UserResourceV1Service } from '../../services/userResource/userResourceService';
 
@@ -65,14 +66,14 @@ export class UserResourceV1Controller {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   public async createUserResource(
-    @Query() createUserResourceQueries: CreateUserResourceQueriesV1Dto,
+    @Query() createUserResourceQuery: CreateUserResourceQueryV1Dto,
     @Body() createUserResourceBody: CreateUserResourceBodyV1Dto,
     @BearerTokenPayload() authPayload: AuthPayload,
   ): Promise<CreateUserResourceResponseV1Dto> {
-    const { userId } = createUserResourceQueries;
+    const { userId } = createUserResourceQuery;
 
-    if (authPayload.userId !== userId && authPayload.role === 'USER') {
-      throw new Error('Cant find other users.');
+    if (authPayload.userId !== userId) {
+      throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
     const { url } = createUserResourceBody;
@@ -112,15 +113,15 @@ export class UserResourceV1Controller {
   @Get(':resourceId')
   public async findUserResource(
     @Param() findUserResourceParams: FindUserResourceParamsV1Dto,
-    @Query() findUserResourceQueries: FindUserResourceQueriesV1Dto,
+    @Query() findUserResourceQuery: FindUserResourceQueryV1Dto,
     @BearerTokenPayload() authPayload: AuthPayload,
   ): Promise<FindUserResourceResponseV1Dto> {
     const { resourceId } = findUserResourceParams;
 
-    const { userId } = findUserResourceQueries;
+    const { userId } = findUserResourceQuery;
 
-    if (authPayload.userId !== userId && authPayload.role === 'USER') {
-      throw new Error('Cant find other users.');
+    if (authPayload.userId !== userId) {
+      throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
     const result = await this.userResourceService.findUserResource({
@@ -158,16 +159,16 @@ export class UserResourceV1Controller {
   @Put(':resourceId')
   public async updateUserResource(
     @Param() updateUserResourceParams: UpdateUserResourceParamsV1Dto,
-    @Query() updateUserResourceQueries: UpdateUserResourceQueriesV1Dto,
+    @Query() updateUserResourceQuery: UpdateUserResourceQueryV1Dto,
     @Body() updateUserResourceBody: UpdateUserResourceBodyV1Dto,
     @BearerTokenPayload() authPayload: AuthPayload,
   ): Promise<UpdateUserResourceResponseV1Dto> {
     const { resourceId } = updateUserResourceParams;
 
-    const { userId } = updateUserResourceQueries;
+    const { userId } = updateUserResourceQuery;
 
-    if (authPayload.userId !== userId && authPayload.role === 'USER') {
-      throw new Error('Cant update other users.');
+    if (authPayload.userId !== userId) {
+      throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
     const result = await this.userResourceService.updateUserResource({
@@ -205,15 +206,15 @@ export class UserResourceV1Controller {
   @Delete(':resourceId')
   public async removeUserResource(
     @Param() removeUserResourceParams: RemoveUserResourceParamsV1Dto,
-    @Query() removeUserResourceQueries: RemoveUserResourceQueriesV1Dto,
+    @Query() removeUserResourceQuery: RemoveUserResourceQueryV1Dto,
     @BearerTokenPayload() authPayload: AuthPayload,
   ): Promise<void> {
     const { resourceId } = removeUserResourceParams;
 
-    const { userId } = removeUserResourceQueries;
+    const { userId } = removeUserResourceQuery;
 
-    if (authPayload.userId !== userId && authPayload.role === 'USER') {
-      throw new Error('Cant remove other users.');
+    if (authPayload.userId !== userId) {
+      throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
     await this.userResourceService.removeUserResource({

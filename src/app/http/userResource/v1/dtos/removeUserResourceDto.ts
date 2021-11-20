@@ -10,7 +10,7 @@ export class RemoveUserResourceParamsV1Dto {
   public readonly resourceId: string;
 }
 
-export class RemoveUserResourceQueriesV1Dto {
+export class RemoveUserResourceQueryV1Dto {
   @IsUUID('4')
   @Expose()
   @UserIdApiProperty()

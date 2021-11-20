@@ -12,7 +12,7 @@ export class CreateUserResourceBodyV1Dto {
   public readonly url: string;
 }
 
-export class CreateUserResourceQueriesV1Dto {
+export class CreateUserResourceQueryV1Dto {
   @IsUUID('4')
   @Expose()
   @UserIdApiProperty()

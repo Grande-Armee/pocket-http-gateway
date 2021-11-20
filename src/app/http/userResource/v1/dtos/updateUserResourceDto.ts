@@ -38,7 +38,7 @@ export class UpdateUserResourceParamsV1Dto {
   public readonly resourceId: string;
 }
 
-export class UpdateUserResourceQueriesV1Dto {
+export class UpdateUserResourceQueryV1Dto {
   @IsUUID('4')
   @Expose()
   @UserIdApiProperty()
