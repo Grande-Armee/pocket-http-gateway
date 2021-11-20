@@ -1,21 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEmail, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
-import { UserEmailApiProperty, UserIdApiProperty, UserPasswordApiProperty } from '../docs/properties';
+import { UserIdApiProperty, UserLanguageApiProperty } from '../docs/properties';
 import { UserV1Dto } from './userDto';
 
 export class UpdateUserBodyV1Dto {
-  @IsEmail()
-  @Expose()
-  @UserEmailApiProperty()
-  public readonly email: string;
-
   @IsString()
-  @MinLength(12)
   @Expose()
-  @UserPasswordApiProperty()
-  public readonly password: string;
+  @UserLanguageApiProperty()
+  public readonly language: string;
 }
 
 export class UpdateUserParamsV1Dto {
@@ -28,7 +22,7 @@ export class UpdateUserParamsV1Dto {
 export class UpdateUserResponseV1Dto {
   @Expose()
   @ApiProperty({
-    description: 'Created user.',
+    description: 'Updated user.',
     type: UserV1Dto,
   })
   public readonly user: UserV1Dto;

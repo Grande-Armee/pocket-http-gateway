@@ -8,6 +8,12 @@ export class UserV1Service {
     return payload;
   }
 
+  public async loginUser(payload: any): Promise<any> {
+    console.log(payload);
+
+    return payload;
+  }
+
   public async findUser(payload: any): Promise<any> {
     console.log(payload);
 

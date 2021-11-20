@@ -15,7 +15,7 @@ export class FindUserParamsV1Dto {
 export class FindUserResponseV1Dto {
   @Expose()
   @ApiProperty({
-    description: 'Created user.',
+    description: 'Found user.',
     type: UserV1Dto,
   })
   public readonly user: UserV1Dto;

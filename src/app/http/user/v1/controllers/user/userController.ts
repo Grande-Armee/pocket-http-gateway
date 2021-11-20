@@ -17,6 +17,7 @@ import { AuthPayload } from '@http/auth/interfaces';
 
 import { CreateUserBodyV1Dto, CreateUserResponseV1Dto } from '../../dtos/createUserDto';
 import { FindUserParamsV1Dto, FindUserResponseV1Dto } from '../../dtos/findUserDto';
+import { LoginUserBodyV1Dto, LoginUserResponseV1Dto } from '../../dtos/loginUserDto';
 import { RemoveUserParamsV1Dto } from '../../dtos/removeUserDto';
 import { UpdateUserBodyV1Dto, UpdateUserParamsV1Dto, UpdateUserResponseV1Dto } from '../../dtos/updateUserDto';
 import { UserV1Service } from '../../services/user/userService';
@@ -55,6 +56,30 @@ export class UserV1Controller {
         language: 'en',
         role: 'USER',
       },
+    });
+  }
+
+  @ApiOperation({
+    description: 'Login user.',
+  })
+  @ApiOkResponse({
+    description: 'User logged in.',
+    type: LoginUserResponseV1Dto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post('/login')
+  public async loginUser(@Body() loginUserBody: LoginUserBodyV1Dto): Promise<LoginUserResponseV1Dto> {
+    const { email, password } = loginUserBody;
+
+    const result = await this.userService.loginUser({
+      email,
+      password,
+    });
+
+    console.log(result);
+
+    return this.dtoFactory.createDtoInstance(LoginUserResponseV1Dto, {
+      token: '123456789',
     });
   }
 
@@ -111,6 +136,7 @@ export class UserV1Controller {
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
   @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard)
   @Put(':userId')
   public async updateUser(
     @Param() updateUserParams: UpdateUserParamsV1Dto,
@@ -152,6 +178,7 @@ export class UserV1Controller {
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
+  @UseGuards(BearerTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':userId')
   public async removeUser(

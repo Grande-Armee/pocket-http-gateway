@@ -9,10 +9,10 @@ class AuthServiceFake {
   public async verifyToken(): Promise<void> {}
 }
 
-const baseUrl = '/v1/users';
-const loginUrl = `${baseUrl}/login`;
+const baseUrl = '/v1/resources';
+const userIdField = 'userId';
 
-describe(`UserV1Controller (${baseUrl})`, () => {
+describe(`UserResourceV1Controller (${baseUrl})`, () => {
   let app: INestApplication;
   let httpHelper: HttpHelper;
   let authHelper: AuthHelper;
@@ -32,19 +32,12 @@ describe(`UserV1Controller (${baseUrl})`, () => {
     await app.close();
   });
 
-  // what to test?
-  // 1. input validation (body, query, params)
-  // body - what if a property is missing?
-  // body - what if a property is of a different type?
-  // params - what if a param is not a uuid but a number?
-  // 2. does it require auth?
-  // 3. cover all possible responses: 200, 403 (auth), 404 (not found) body.user.id === userId etc
-
-  describe('Find a user', () => {
-    it('throws an error when the userId param is not a uuid', async () => {
+  describe('Find user resource', () => {
+    it('throws an error when the resourceId param is not a uuid', async () => {
       expect.assertions(1);
 
-      const userId = '123';
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = '123';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -53,17 +46,18 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.GET,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
       });
 
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('accepts a request when the userId param is a uuid', async () => {
+    it('throws an error when the userId query is not a uuid', async () => {
       expect.assertions(1);
 
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const userId = '123';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -72,7 +66,27 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.GET,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when the resourceId param and userId query are uuid', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.GET,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
       });
 
@@ -83,22 +97,23 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       expect.assertions(1);
 
       const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const response = await httpHelper.request({
         method: HttpMethod.GET,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
       });
 
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
     });
   });
 
-  describe('Create a user', () => {
-    it('throws an error when some fields in request body are missing', async () => {
+  describe('Create user resource', () => {
+    it('throws an error when the userId query is not a uuid', async () => {
       expect.assertions(1);
 
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { email: 'email@gmail.com' };
+      const userId = '123';
+      const exampleUrl = 'www.example.com';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -107,19 +122,18 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.POST,
-        url: `${baseUrl}`,
+        url: `${baseUrl}?${userIdField}=${userId}`,
         token: authToken,
-        data: body,
+        data: { url: exampleUrl },
       });
 
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('throws an error when value of email field is not an email', async () => {
+    it('throws an error when the url in body is not provided', async () => {
       expect.assertions(1);
 
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { email: 'email', password: '123456789012345' };
+      const userId = '123';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -128,19 +142,18 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.POST,
-        url: `${baseUrl}`,
+        url: `${baseUrl}?${userIdField}=${userId}`,
         token: authToken,
-        data: body,
       });
 
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('throws an error when value of password field has less than 12 characters', async () => {
+    it('throws an error when the url in body is not string', async () => {
       expect.assertions(1);
 
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { email: 'email@gmail.com', password: '123' };
+      const userId = '123';
+      const exampleUrl = 123;
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -149,114 +162,80 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.POST,
-        url: `${baseUrl}`,
+        url: `${baseUrl}?${userIdField}=${userId}`,
         token: authToken,
-        data: body,
+        data: { url: exampleUrl },
       });
 
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('accepts a request when email is valid and password has more than 12 characters', async () => {
+    it('accepts a request when the userId query is a uuid', async () => {
       expect.assertions(1);
 
-      const body = { email: 'email@gmail.com', password: '123456789012345' };
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const exampleUrl = 'www.example.com';
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
 
       const response = await httpHelper.request({
         method: HttpMethod.POST,
-        url: `${baseUrl}`,
-        data: body,
+        url: `${baseUrl}?${userIdField}=${userId}`,
+        token: authToken,
+        data: { url: exampleUrl },
       });
 
       expect(response.statusCode).toBe(HttpStatus.CREATED);
     });
-  });
 
-  describe('Login user', () => {
-    it('throws an error when some fields in request body are missing', async () => {
+    it('requires bearer token authentication', async () => {
       expect.assertions(1);
 
       const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { email: 'email@gmail.com' };
-
-      const authToken = authHelper.mockAuth({
-        userId,
-        role: '123',
-      });
+      const exampleUrl = 'www.example.com';
 
       const response = await httpHelper.request({
         method: HttpMethod.POST,
-        url: `${loginUrl}`,
-        token: authToken,
-        data: body,
+        url: `${baseUrl}?${userIdField}=${userId}`,
+        data: { url: exampleUrl },
       });
 
-      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
-    });
-
-    it('throws an error when value of email field is not an email', async () => {
-      expect.assertions(1);
-
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { email: 'email', password: '123456789012345' };
-
-      const authToken = authHelper.mockAuth({
-        userId,
-        role: '123',
-      });
-
-      const response = await httpHelper.request({
-        method: HttpMethod.POST,
-        url: `${loginUrl}`,
-        token: authToken,
-        data: body,
-      });
-
-      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
-    });
-
-    it('throws an error when value of password field has less than 12 characters', async () => {
-      expect.assertions(1);
-
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { email: 'email@gmail.com', password: '123' };
-
-      const authToken = authHelper.mockAuth({
-        userId,
-        role: '123',
-      });
-
-      const response = await httpHelper.request({
-        method: HttpMethod.POST,
-        url: `${loginUrl}`,
-        token: authToken,
-        data: body,
-      });
-
-      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
-    });
-
-    it('accepts a request when email is valid and password has more than 12 characters', async () => {
-      expect.assertions(1);
-
-      const body = { email: 'email@gmail.com', password: '123456789012345' };
-
-      const response = await httpHelper.request({
-        method: HttpMethod.POST,
-        url: `${loginUrl}`,
-        data: body,
-      });
-
-      expect(response.statusCode).toBe(HttpStatus.OK);
+      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
     });
   });
 
-  describe('Update user', () => {
-    it('throws an error when the userId param is not a uuid', async () => {
+  describe('Update user resource', () => {
+    it('throws an error when the resourceId param is not a uuid', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = '123';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when the userId query is not a uuid', async () => {
       expect.assertions(1);
 
       const userId = '123';
-      const body = { language: 'en' };
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -265,7 +244,7 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.PUT,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
         data: body,
       });
@@ -273,10 +252,12 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('throws an error when language field is not provided in request body', async () => {
+    it('throws when any of body fields is not string', async () => {
       expect.assertions(1);
 
       const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: true };
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -285,27 +266,7 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.PUT,
-        url: `${baseUrl}/${userId}`,
-        token: authToken,
-      });
-
-      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
-    });
-
-    it('throws an error when language field is not string', async () => {
-      expect.assertions(1);
-
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { language: 1 };
-
-      const authToken = authHelper.mockAuth({
-        userId,
-        role: '123',
-      });
-
-      const response = await httpHelper.request({
-        method: HttpMethod.PUT,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
         data: body,
       });
@@ -313,11 +274,12 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('accepts a request when the userId param is a uuid and language is string', async () => {
+    it('accepts a request when the resourceId param and userId query are uuid', async () => {
       expect.assertions(1);
 
       const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { language: 'en' };
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -326,7 +288,7 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.PUT,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
         data: body,
       });
@@ -338,11 +300,12 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       expect.assertions(1);
 
       const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
-      const body = { language: 'en' };
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
 
       const response = await httpHelper.request({
         method: HttpMethod.PUT,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         data: body,
       });
 
@@ -350,11 +313,12 @@ describe(`UserV1Controller (${baseUrl})`, () => {
     });
   });
 
-  describe('Remove user', () => {
-    it('throws an error when the userId param is not a uuid', async () => {
+  describe('Remove user resource', () => {
+    it('throws an error when the resourceId param is not a uuid', async () => {
       expect.assertions(1);
 
-      const userId = '123';
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = '123';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -363,17 +327,18 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.DELETE,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
       });
 
       expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('accepts a request when the userId param is a uuid', async () => {
+    it('throws an error when the userId query is not a uuid', async () => {
       expect.assertions(1);
 
-      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const userId = '123';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -382,7 +347,27 @@ describe(`UserV1Controller (${baseUrl})`, () => {
 
       const response = await httpHelper.request({
         method: HttpMethod.DELETE,
-        url: `${baseUrl}/${userId}`,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when the resourceId param and userId query are uuid', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.DELETE,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
         token: authToken,
       });
 
@@ -393,10 +378,11 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       expect.assertions(1);
 
       const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const response = await httpHelper.request({
-        method: HttpMethod.DELETE,
-        url: `${baseUrl}/${userId}`,
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
       });
 
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
