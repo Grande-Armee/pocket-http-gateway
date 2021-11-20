@@ -206,4 +206,110 @@ describe(`UserResourceV1Controller (${baseUrl})`, () => {
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
     });
   });
+
+  describe('Update user resource', () => {
+    it('throws an error when the resourceId param is not a uuid', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = '123';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when the userId query is not a uuid', async () => {
+      expect.assertions(1);
+
+      const userId = '123';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws when any of body fields is not string', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: true };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when the resourceId param and userId query are uuid', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+    });
+
+    it('requires bearer token authentication', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { title: 'title', thumbnailUrl: 'thumbnailUrl', content: 'content' };
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+    });
+  });
 });

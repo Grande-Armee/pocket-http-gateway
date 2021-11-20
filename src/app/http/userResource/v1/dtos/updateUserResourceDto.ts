@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsUUID } from 'class-validator';
+import { IsOptional, IsUUID, IsString } from 'class-validator';
 
 import {
   UserResourceTitleApiProperty,
@@ -13,16 +13,22 @@ import { UserResourceV1Dto } from './userResourceDto';
 
 export class UpdateUserResourceBodyV1Dto {
   @Expose()
+  @IsString()
+  @IsOptional()
   @UserResourceTitleApiProperty()
-  public readonly title: string | null;
+  public readonly title?: string;
 
   @Expose()
+  @IsString()
+  @IsOptional()
   @UserResourceThumbnailUrlApiProperty()
-  public readonly thumbnailUrl: string | null;
+  public readonly thumbnailUrl?: string;
 
   @Expose()
+  @IsString()
+  @IsOptional()
   @UserResourceContentApiProperty()
-  public readonly content: string | null;
+  public readonly content?: string;
 }
 
 export class UpdateUserResourceParamsV1Dto {
