@@ -111,6 +111,7 @@ export class UserV1Controller {
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
   @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerTokenGuard)
   @Put(':userId')
   public async updateUser(
     @Param() updateUserParams: UpdateUserParamsV1Dto,
@@ -152,6 +153,7 @@ export class UserV1Controller {
   })
   @ApiForbiddenResponse()
   @ApiNotFoundResponse()
+  @UseGuards(BearerTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':userId')
   public async removeUser(

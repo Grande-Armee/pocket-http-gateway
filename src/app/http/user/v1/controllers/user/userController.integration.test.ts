@@ -91,4 +91,235 @@ describe(`UserV1Controller (${baseUrl})`, () => {
       expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
     });
   });
+
+  describe('Create a user', () => {
+    it('throws an error when some fields in request body are missing', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { email: 'email@gmail.com' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${baseUrl}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when value of email field is not an email', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { email: 'email', password: '123456789012345' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${baseUrl}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when value of password field has less than 12 characters', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { email: 'email@gmail.com', password: '123' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${baseUrl}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when email is valid and password has more than 12 characters', async () => {
+      expect.assertions(1);
+
+      const body = { email: 'email@gmail.com', password: '123456789012345' };
+
+      const response = await httpHelper.request({
+        method: HttpMethod.POST,
+        url: `${baseUrl}`,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.CREATED);
+    });
+  });
+
+  describe('Update user', () => {
+    it('throws an error when the userId param is not a uuid', async () => {
+      expect.assertions(1);
+
+      const userId = '123';
+      const body = { language: 'en' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when language field is not provided in request body', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${userId}`,
+        token: authToken,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('throws an error when language field is not string', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { language: 1 };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when the userId param is a uuid and language is string', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { language: 'en' };
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${userId}`,
+        token: authToken,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.OK);
+    });
+
+    it('requires bearer token authentication', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+      const body = { language: 'en' };
+
+      const response = await httpHelper.request({
+        method: HttpMethod.PUT,
+        url: `${baseUrl}/${userId}`,
+        data: body,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+    });
+  });
+
+  describe('Remove user', () => {
+    it('throws an error when the userId param is not a uuid', async () => {
+      expect.assertions(1);
+
+      const userId = '123';
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.DELETE,
+        url: `${baseUrl}/${userId}`,
+        token: authToken,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('accepts a request when the userId param is a uuid', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+
+      const authToken = authHelper.mockAuth({
+        userId,
+        role: '123',
+      });
+
+      const response = await httpHelper.request({
+        method: HttpMethod.DELETE,
+        url: `${baseUrl}/${userId}`,
+        token: authToken,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.NO_CONTENT);
+    });
+
+    it('requires bearer token authentication', async () => {
+      expect.assertions(1);
+
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
+
+      const response = await httpHelper.request({
+        method: HttpMethod.DELETE,
+        url: `${baseUrl}/${userId}`,
+      });
+
+      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+    });
+  });
 });
