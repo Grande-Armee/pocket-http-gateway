@@ -133,7 +133,7 @@ describe(`UserResourceV1Controller (${baseUrl})`, () => {
     it('throws an error when the url in body is not provided', async () => {
       expect.assertions(1);
 
-      const userId = '123';
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const authToken = authHelper.mockAuth({
         userId,
@@ -152,7 +152,7 @@ describe(`UserResourceV1Controller (${baseUrl})`, () => {
     it('throws an error when the url in body is not string', async () => {
       expect.assertions(1);
 
-      const userId = '123';
+      const userId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
       const exampleUrl = 123;
 
       const authToken = authHelper.mockAuth({
@@ -381,7 +381,7 @@ describe(`UserResourceV1Controller (${baseUrl})`, () => {
       const resourceId = 'e46c11a8-8893-412d-bc8b-60753a98e45c';
 
       const response = await httpHelper.request({
-        method: HttpMethod.PUT,
+        method: HttpMethod.DELETE,
         url: `${baseUrl}/${resourceId}?${userIdField}=${userId}`,
       });
 
