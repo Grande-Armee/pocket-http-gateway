@@ -14,6 +14,18 @@ export class UserV1Service {
     return payload;
   }
 
+  public async resetPassword(payload: any): Promise<any> {
+    console.log(payload);
+
+    return payload;
+  }
+
+  public async setPassword(payload: any): Promise<any> {
+    console.log(payload);
+
+    return payload;
+  }
+
   public async findUser(payload: any): Promise<any> {
     console.log(payload);
 

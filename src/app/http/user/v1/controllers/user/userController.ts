@@ -19,6 +19,8 @@ import { CreateUserBodyV1Dto, CreateUserResponseV1Dto } from '../../dtos/createU
 import { FindUserParamsV1Dto, FindUserResponseV1Dto } from '../../dtos/findUserDto';
 import { LoginUserBodyV1Dto, LoginUserResponseV1Dto } from '../../dtos/loginUserDto';
 import { RemoveUserParamsV1Dto } from '../../dtos/removeUserDto';
+import { ResetPasswordBodyV1Dto } from '../../dtos/resetPasswordDto';
+import { SetPasswordBodyV1Dto } from '../../dtos/setPasswordDto';
 import { UpdateUserBodyV1Dto, UpdateUserParamsV1Dto, UpdateUserResponseV1Dto } from '../../dtos/updateUserDto';
 import { UserV1Service } from '../../services/user/userService';
 
@@ -81,6 +83,36 @@ export class UserV1Controller {
     return this.dtoFactory.createDtoInstance(LoginUserResponseV1Dto, {
       token: '123456789',
     });
+  }
+
+  @ApiOperation({
+    description: 'Reset password.',
+  })
+  @ApiNoContentResponse({
+    description: 'Password is reset.',
+  })
+  @UseGuards(BearerTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('/reset-password')
+  public async resetPassword(@Body() resetPasswordBody: ResetPasswordBodyV1Dto): Promise<void> {
+    const { email } = resetPasswordBody;
+
+    await this.userService.resetPassword({ email });
+  }
+
+  @ApiOperation({
+    description: 'Set password.',
+  })
+  @ApiNoContentResponse({
+    description: 'Password is set.',
+  })
+  @UseGuards(BearerTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('/set-password')
+  public async setPassword(@Body() setPasswordBody: SetPasswordBodyV1Dto): Promise<void> {
+    const { password } = setPasswordBody;
+
+    await this.userService.setPassword({ password });
   }
 
   @ApiBearerAuth()
