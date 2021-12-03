@@ -85,7 +85,7 @@ export class UserResourceV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
         id: '123',
         createdAt: '123',
@@ -131,7 +131,7 @@ export class UserResourceV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(FindUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(FindUserResourceResponseV1Dto, {
       userResource: {
         id: '12345',
         createdAt: '12345',
@@ -179,7 +179,7 @@ export class UserResourceV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(UpdateUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(UpdateUserResourceResponseV1Dto, {
       userResource: {
         id: '1234567',
         createdAt: '1234567',

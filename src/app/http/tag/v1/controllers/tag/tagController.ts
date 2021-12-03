@@ -73,7 +73,7 @@ export class TagV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateTagResponseV1Dto, {
+    return this.dtoFactory.create(CreateTagResponseV1Dto, {
       tag: {
         id: '123',
         createdAt: '123',
@@ -120,7 +120,7 @@ export class TagV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateTagResponseV1Dto, {
+    return this.dtoFactory.create(CreateTagResponseV1Dto, {
       tag: {
         id: '123',
         createdAt: '123',

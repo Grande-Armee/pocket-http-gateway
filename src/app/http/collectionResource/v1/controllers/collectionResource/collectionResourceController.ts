@@ -74,7 +74,7 @@ export class CollectionResourceV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateCollectionResourceResponseV1Dto, {
+    return this.dtoFactory.create(CreateCollectionResourceResponseV1Dto, {
       collectionResource: {
         id: '123',
         createdAt: '123',

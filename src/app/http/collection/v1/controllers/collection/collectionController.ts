@@ -77,7 +77,7 @@ export class CollectionV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateCollectionResponseV1Dto, {
+    return this.dtoFactory.create(CreateCollectionResponseV1Dto, {
       collection: {
         id: '123',
         createdAt: '123',
@@ -122,7 +122,7 @@ export class CollectionV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(FindCollectionResponseV1Dto, {
+    return this.dtoFactory.create(FindCollectionResponseV1Dto, {
       collection: {
         id: '12345',
         createdAt: '12345',
@@ -169,7 +169,7 @@ export class CollectionV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(UpdateCollectionResponseV1Dto, {
+    return this.dtoFactory.create(UpdateCollectionResponseV1Dto, {
       collection: {
         id: '1234567',
         createdAt: '1234567',

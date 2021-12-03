@@ -71,7 +71,7 @@ export class UserResourceTagV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateUserResourceTagResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResourceTagResponseV1Dto, {
       userResourceTag: {
         id: '123',
         createdAt: '123',
