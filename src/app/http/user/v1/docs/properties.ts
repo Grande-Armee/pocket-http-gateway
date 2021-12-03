@@ -1,3 +1,5 @@
+import { UserLanguage } from '@grande-armee/pocket-common';
+
 import { createIdApiProperty, createApiProperty, createEmailApiProperty } from '@shared/docs/properties';
 
 export const UserIdApiProperty = createIdApiProperty({
@@ -28,7 +30,7 @@ export const UserRoleApiProperty = createApiProperty({
 
 export const UserLanguageApiProperty = createApiProperty({
   description: `User's language.`,
-  type: String,
+  type: UserLanguage,
   example: 'en',
 });
 

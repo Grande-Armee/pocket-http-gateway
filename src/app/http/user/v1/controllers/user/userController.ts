@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { DtoFactory, UserTransporter } from '@grande-armee/pocket-common';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -19,15 +19,13 @@ import { CreateUserBodyV1Dto, CreateUserResponseV1Dto } from '../../dtos/createU
 import { FindUserParamsV1Dto, FindUserResponseV1Dto } from '../../dtos/findUserDto';
 import { LoginUserBodyV1Dto, LoginUserResponseV1Dto } from '../../dtos/loginUserDto';
 import { RemoveUserParamsV1Dto } from '../../dtos/removeUserDto';
-import { ResetPasswordBodyV1Dto } from '../../dtos/resetPasswordDto';
 import { SetPasswordBodyV1Dto } from '../../dtos/setPasswordDto';
 import { UpdateUserBodyV1Dto, UpdateUserParamsV1Dto, UpdateUserResponseV1Dto } from '../../dtos/updateUserDto';
-import { UserV1Service } from '../../services/user/userService';
 
 @ApiTags('Users')
 @Controller({ version: '1', path: '/users' })
 export class UserV1Controller {
-  public constructor(private readonly userService: UserV1Service, private readonly dtoFactory: DtoFactory) {}
+  public constructor(private readonly userTransporter: UserTransporter, private readonly dtoFactory: DtoFactory) {}
 
   @ApiOperation({
     description: 'Register a user.',
@@ -39,24 +37,22 @@ export class UserV1Controller {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   public async createUser(@Body() createUserBody: CreateUserBodyV1Dto): Promise<CreateUserResponseV1Dto> {
-    const { email, password } = createUserBody;
+    const { email, password, language } = createUserBody;
 
-    const result = await this.userService.createUser({
+    const result = await this.userTransporter.createUser({
       email,
       password,
+      language,
     });
-
-    console.log(result);
 
     return this.dtoFactory.create(CreateUserResponseV1Dto, {
       user: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        email: '123',
-        isActive: true,
-        language: 'en',
-        role: 'USER',
+        id: result.user.id,
+        createdAt: result.user.createdAt,
+        updatedAt: result.user.updatedAt,
+        email: result.user.email,
+        language: result.user.language,
+        role: result.user.role,
       },
     });
   }
@@ -73,15 +69,13 @@ export class UserV1Controller {
   public async loginUser(@Body() loginUserBody: LoginUserBodyV1Dto): Promise<LoginUserResponseV1Dto> {
     const { email, password } = loginUserBody;
 
-    const result = await this.userService.loginUser({
+    const result = await this.userTransporter.loginUser({
       email,
       password,
     });
 
-    console.log(result);
-
     return this.dtoFactory.create(LoginUserResponseV1Dto, {
-      token: '123456789',
+      token: result.token,
     });
   }
 
@@ -94,10 +88,8 @@ export class UserV1Controller {
   @UseGuards(BearerTokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('/reset-password')
-  public async resetPassword(@Body() resetPasswordBody: ResetPasswordBodyV1Dto): Promise<void> {
-    const { email } = resetPasswordBody;
-
-    await this.userService.resetPassword({ email });
+  public async resetPassword(): Promise<void> {
+    //TODO: add reset password rpc
   }
 
   @ApiOperation({
@@ -110,9 +102,9 @@ export class UserV1Controller {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('/set-password')
   public async setPassword(@Body() setPasswordBody: SetPasswordBodyV1Dto): Promise<void> {
-    const { password } = setPasswordBody;
+    const { userId, password } = setPasswordBody;
 
-    await this.userService.setPassword({ password });
+    await this.userTransporter.setNewPassword({ userId, newPassword: password });
   }
 
   @ApiBearerAuth()
@@ -138,23 +130,20 @@ export class UserV1Controller {
       throw new Error('Cant find other users.');
     }
 
-    const result = await this.userService.findUser({
+    const result = await this.userTransporter.findUser({
       userId,
     });
 
-    console.log(result);
-
-    return {
+    return this.dtoFactory.create(CreateUserResponseV1Dto, {
       user: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        email: '123',
-        isActive: true,
-        language: 'en',
-        role: 'USER',
+        id: result.user.id,
+        createdAt: result.user.createdAt,
+        updatedAt: result.user.updatedAt,
+        email: result.user.email,
+        language: result.user.language,
+        role: result.user.role,
       },
-    };
+    });
   }
 
   @ApiBearerAuth()
@@ -181,24 +170,23 @@ export class UserV1Controller {
       throw new Error('Cant update other users.');
     }
 
-    const result = await this.userService.updateUser({
+    const { language } = updateUserBody;
+
+    const result = await this.userTransporter.updateUser({
       userId,
-      userData: updateUserBody,
+      language,
     });
 
-    console.log(result);
-
-    return {
+    return this.dtoFactory.create(CreateUserResponseV1Dto, {
       user: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        email: '123',
-        isActive: true,
-        language: 'en',
-        role: 'USER',
+        id: result.user.id,
+        createdAt: result.user.createdAt,
+        updatedAt: result.user.updatedAt,
+        email: result.user.email,
+        language: result.user.language,
+        role: result.user.role,
       },
-    };
+    });
   }
 
   @ApiBearerAuth()
@@ -223,7 +211,7 @@ export class UserV1Controller {
       throw new Error('Cant remove other users.');
     }
 
-    await this.userService.removeUser({
+    await this.userTransporter.removeUser({
       userId,
     });
   }
