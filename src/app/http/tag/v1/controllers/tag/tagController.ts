@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { DtoFactory, TagTransporter } from '@grande-armee/pocket-common';
 import {
   Body,
   Controller,
@@ -35,12 +35,11 @@ import {
   UpdateTagResponseV1Dto,
   UpdateTagQueryV1Dto,
 } from '../../dtos/updateTagDto';
-import { TagV1Service } from '../../services/tag/tagService';
 
 @ApiTags('Tags')
 @Controller({ version: '1', path: '/tags' })
 export class TagV1Controller {
-  public constructor(private readonly TagService: TagV1Service, private readonly dtoFactory: DtoFactory) {}
+  public constructor(private readonly tagTransporter: TagTransporter, private readonly dtoFactory: DtoFactory) {}
 
   @ApiOperation({
     description: 'Create tag.',
@@ -65,22 +64,20 @@ export class TagV1Controller {
 
     const { color, title } = createTagBody;
 
-    const result = await this.TagService.createTag({
+    const result = await this.tagTransporter.createTag({
       userId,
       color,
       title,
     });
 
-    console.log(result);
-
     return this.dtoFactory.create(CreateTagResponseV1Dto, {
       tag: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        color: 'red',
-        title: 'title',
-        userId: '12345',
+        id: result.tag.id,
+        createdAt: result.tag.createdAt,
+        updatedAt: result.tag.updatedAt,
+        color: result.tag.color,
+        title: result.tag.title,
+        userId: result.tag.userId,
       },
     });
   }
@@ -112,22 +109,22 @@ export class TagV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.TagService.updateTag({
-      userId,
-      tagId,
-      tagData: updateTagBody,
-    });
+    const { title, color } = updateTagBody;
 
-    console.log(result);
+    const result = await this.tagTransporter.updateTag({
+      tagId,
+      title,
+      color,
+    });
 
     return this.dtoFactory.create(CreateTagResponseV1Dto, {
       tag: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        color: 'red',
-        title: 'title',
-        userId: '12345',
+        id: result.tag.id,
+        createdAt: result.tag.createdAt,
+        updatedAt: result.tag.updatedAt,
+        color: result.tag.color,
+        title: result.tag.title,
+        userId: result.tag.userId,
       },
     });
   }
@@ -157,8 +154,7 @@ export class TagV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    await this.TagService.removeTag({
-      userId,
+    await this.tagTransporter.removeTag({
       tagId,
     });
   }

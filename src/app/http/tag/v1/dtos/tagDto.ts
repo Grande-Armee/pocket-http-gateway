@@ -11,11 +11,11 @@ export class TagV1Dto {
 
   @Expose()
   @CreatedAtApiProperty()
-  public createdAt: string;
+  public createdAt: Date;
 
   @Expose()
   @UpdatedAtApiProperty()
-  public updatedAt: string;
+  public updatedAt: Date;
 
   @Expose()
   @TagColorApiProperty()
