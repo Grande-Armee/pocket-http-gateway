@@ -1,13 +1,16 @@
+import { ResourceDto, TagDto, UserResourceStatus } from '@grande-armee/pocket-common';
 import { Expose } from 'class-transformer';
 
 import { CreatedAtApiProperty, UpdatedAtApiProperty } from '@shared/docs/properties';
+import { ResourceIdApiProperty } from '@src/app/http/collection/v1/docs/properties';
 
 import {
+  UserIdApiProperty,
   UserResourceIdApiProperty,
-  UserResourceUrlApiProperty,
-  UserResourceTitleApiProperty,
-  UserResourceThumbnailUrlApiProperty,
-  UserResourceContentApiProperty,
+  UserResourceRatingApiProperty,
+  UserResourceResourceApiProperty,
+  UserResourceStatusApiProperty,
+  UserResourceTagsApiProperty,
 } from '../docs/properties';
 
 export class UserResourceV1Dto {
@@ -24,18 +27,30 @@ export class UserResourceV1Dto {
   public updatedAt: Date;
 
   @Expose()
-  @UserResourceUrlApiProperty()
-  public url: string;
+  @UserResourceStatusApiProperty()
+  public status: UserResourceStatus;
 
   @Expose()
-  @UserResourceTitleApiProperty()
-  public title: string | null;
+  @UserResourceStatusApiProperty()
+  public isFavorite: boolean;
 
   @Expose()
-  @UserResourceThumbnailUrlApiProperty()
-  public thumbnailUrl: string | null;
+  @UserResourceRatingApiProperty()
+  public rating: number | null;
 
   @Expose()
-  @UserResourceContentApiProperty()
-  public content: string | null;
+  @UserResourceResourceApiProperty()
+  public resource: ResourceDto | null;
+
+  @Expose()
+  @ResourceIdApiProperty()
+  public resourceId: string;
+
+  @Expose()
+  @UserIdApiProperty()
+  public userId: string;
+
+  @Expose()
+  @UserResourceTagsApiProperty()
+  public tags: TagDto[] | null;
 }

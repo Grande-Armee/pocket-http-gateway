@@ -1,3 +1,5 @@
+import { ResourceDto, TagDto, UserResourceStatus } from '@grande-armee/pocket-common';
+
 import { createIdApiProperty, createApiProperty, createOptionalApiProperty } from '@shared/docs/properties';
 
 export const UserIdApiProperty = createIdApiProperty({
@@ -18,20 +20,32 @@ export const UserResourceUrlApiProperty = createApiProperty({
   example: 'http://example.net/',
 });
 
-export const UserResourceTitleApiProperty = createOptionalApiProperty({
-  description: `User resource's title.`,
-  type: String,
-  example: 'Example title',
+export const UserResourceStatusApiProperty = createApiProperty({
+  description: `User resource's status.`,
+  type: UserResourceStatus,
+  example: 'toRead',
 });
 
-export const UserResourceThumbnailUrlApiProperty = createOptionalApiProperty({
-  description: `User resource's thumbnail url.`,
-  type: String,
-  example: 'https://picsum.photos/200/300',
+export const UserResourceIsFavoriteApiProperty = createApiProperty({
+  description: `User resource's is favorite.`,
+  type: Boolean,
+  example: true,
 });
 
-export const UserResourceContentApiProperty = createOptionalApiProperty({
-  description: `User resource's content.`,
-  type: String,
-  example: 'Example content',
+export const UserResourceRatingApiProperty = createOptionalApiProperty({
+  description: `User resource's rating.`,
+  type: Number,
+  example: 3,
+});
+
+export const UserResourceResourceApiProperty = createOptionalApiProperty({
+  description: `User resource's resource.`,
+  type: ResourceDto,
+  example: null,
+});
+
+export const UserResourceTagsApiProperty = createOptionalApiProperty({
+  description: `User resource's tags.`,
+  type: [TagDto],
+  example: null,
 });

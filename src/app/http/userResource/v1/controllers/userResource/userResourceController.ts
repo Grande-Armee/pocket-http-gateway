@@ -1,4 +1,4 @@
-import { DtoFactory, ResourceTransporter } from '@grande-armee/pocket-common';
+import { DtoFactory, ResourceTransporter, UserResourceTransporter } from '@grande-armee/pocket-common';
 import {
   Body,
   Controller,
@@ -51,6 +51,7 @@ import {
 export class UserResourceV1Controller {
   public constructor(
     private readonly resourceTransporter: ResourceTransporter,
+    private readonly userResourceTransporter: UserResourceTransporter,
     private readonly dtoFactory: DtoFactory,
   ) {}
 
@@ -81,15 +82,23 @@ export class UserResourceV1Controller {
       url,
     });
 
+    const userResourceResult = await this.userResourceTransporter.createUserResource({
+      userId,
+      resourceId: resourceResult.resource.id,
+    });
+
     return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: resourceResult.resource.id,
-        createdAt: resourceResult.resource.createdAt,
-        updatedAt: resourceResult.resource.updatedAt,
-        url: resourceResult.resource.url,
-        title: resourceResult.resource.title,
-        thumbnailUrl: resourceResult.resource.thumbnailUrl,
-        content: resourceResult.resource.content,
+        id: userResourceResult.userResource.id,
+        createdAt: userResourceResult.userResource.createdAt,
+        updatedAt: userResourceResult.userResource.updatedAt,
+        status: userResourceResult.userResource.status,
+        isFavorite: userResourceResult.userResource.isFavorite,
+        rating: userResourceResult.userResource.rating,
+        resource: userResourceResult.userResource.resource,
+        resourceId: userResourceResult.userResource.resourceId,
+        userId: userResourceResult.userResource.userId,
+        tags: userResourceResult.userResource.tags,
       },
     });
   }
@@ -120,19 +129,23 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.resourceTransporter.findResource({
+    const result = await this.userResourceTransporter.findUserResource({
+      userId,
       resourceId,
     });
 
     return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: result.resource.id,
-        createdAt: result.resource.createdAt,
-        updatedAt: result.resource.updatedAt,
-        url: result.resource.url,
-        title: result.resource.title,
-        thumbnailUrl: result.resource.thumbnailUrl,
-        content: result.resource.content,
+        id: result.userResource.id,
+        createdAt: result.userResource.createdAt,
+        updatedAt: result.userResource.updatedAt,
+        status: result.userResource.status,
+        isFavorite: result.userResource.isFavorite,
+        rating: result.userResource.rating,
+        resource: result.userResource.resource,
+        resourceId: result.userResource.resourceId,
+        userId: result.userResource.userId,
+        tags: result.userResource.tags,
       },
     });
   }
@@ -164,24 +177,28 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const { title, thumbnailUrl, content } = updateUserResourceBody;
+    const { status, isFavorite, rating } = updateUserResourceBody;
 
-    const result = await this.resourceTransporter.updateResource({
+    const result = await this.userResourceTransporter.updateUserResource({
+      userId,
       resourceId,
-      title,
-      thumbnailUrl,
-      content,
+      status,
+      isFavorite,
+      rating,
     });
 
     return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: result.resource.id,
-        createdAt: result.resource.createdAt,
-        updatedAt: result.resource.updatedAt,
-        url: result.resource.url,
-        title: result.resource.title,
-        thumbnailUrl: result.resource.thumbnailUrl,
-        content: result.resource.content,
+        id: result.userResource.id,
+        createdAt: result.userResource.createdAt,
+        updatedAt: result.userResource.updatedAt,
+        status: result.userResource.status,
+        isFavorite: result.userResource.isFavorite,
+        rating: result.userResource.rating,
+        resource: result.userResource.resource,
+        resourceId: result.userResource.resourceId,
+        userId: result.userResource.userId,
+        tags: result.userResource.tags,
       },
     });
   }
@@ -211,7 +228,8 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    await this.resourceTransporter.removeResource({
+    await this.userResourceTransporter.removeUserResource({
+      userId,
       resourceId,
     });
   }
