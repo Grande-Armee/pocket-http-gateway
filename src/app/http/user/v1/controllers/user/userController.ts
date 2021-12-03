@@ -48,7 +48,7 @@ export class UserV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(CreateUserResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResponseV1Dto, {
       user: {
         id: '123',
         createdAt: '123',
@@ -80,7 +80,7 @@ export class UserV1Controller {
 
     console.log(result);
 
-    return this.dtoFactory.createDtoInstance(LoginUserResponseV1Dto, {
+    return this.dtoFactory.create(LoginUserResponseV1Dto, {
       token: '123456789',
     });
   }
