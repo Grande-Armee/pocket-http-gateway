@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { DtoFactory, ResourceTransporter } from '@grande-armee/pocket-common';
 import {
   Body,
   Controller,
@@ -45,13 +45,12 @@ import {
   UpdateUserResourceResponseV1Dto,
   UpdateUserResourceQueryV1Dto,
 } from '../../dtos/updateUserResourceDto';
-import { UserResourceV1Service } from '../../services/userResource/userResourceService';
 
 @ApiTags('UserResources')
 @Controller({ version: '1', path: '/resources' })
 export class UserResourceV1Controller {
   public constructor(
-    private readonly userResourceService: UserResourceV1Service,
+    private readonly resourceTransporter: ResourceTransporter,
     private readonly dtoFactory: DtoFactory,
   ) {}
 
@@ -78,22 +77,19 @@ export class UserResourceV1Controller {
 
     const { url } = createUserResourceBody;
 
-    const result = await this.userResourceService.createUserResource({
-      userId,
+    const resourceResult = await this.resourceTransporter.createResource({
       url,
     });
 
-    console.log(result);
-
     return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        url: 'www.google.com',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: resourceResult.resource.id,
+        createdAt: resourceResult.resource.createdAt,
+        updatedAt: resourceResult.resource.updatedAt,
+        url: resourceResult.resource.url,
+        title: resourceResult.resource.title,
+        thumbnailUrl: resourceResult.resource.thumbnailUrl,
+        content: resourceResult.resource.content,
       },
     });
   }
@@ -124,22 +120,19 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.userResourceService.findUserResource({
-      userId,
+    const result = await this.resourceTransporter.findResource({
       resourceId,
     });
 
-    console.log(result);
-
-    return this.dtoFactory.create(FindUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: '12345',
-        createdAt: '12345',
-        updatedAt: '12345',
-        url: 'www.google.com',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.resource.id,
+        createdAt: result.resource.createdAt,
+        updatedAt: result.resource.updatedAt,
+        url: result.resource.url,
+        title: result.resource.title,
+        thumbnailUrl: result.resource.thumbnailUrl,
+        content: result.resource.content,
       },
     });
   }
@@ -171,23 +164,24 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.userResourceService.updateUserResource({
-      userId,
+    const { title, thumbnailUrl, content } = updateUserResourceBody;
+
+    const result = await this.resourceTransporter.updateResource({
       resourceId,
-      userResourceData: updateUserResourceBody,
+      title,
+      thumbnailUrl,
+      content,
     });
 
-    console.log(result);
-
-    return this.dtoFactory.create(UpdateUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: '1234567',
-        createdAt: '1234567',
-        updatedAt: '1234567',
-        url: 'www.google.com',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.resource.id,
+        createdAt: result.resource.createdAt,
+        updatedAt: result.resource.updatedAt,
+        url: result.resource.url,
+        title: result.resource.title,
+        thumbnailUrl: result.resource.thumbnailUrl,
+        content: result.resource.content,
       },
     });
   }
@@ -217,8 +211,7 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    await this.userResourceService.removeUserResource({
-      userId,
+    await this.resourceTransporter.removeResource({
       resourceId,
     });
   }
