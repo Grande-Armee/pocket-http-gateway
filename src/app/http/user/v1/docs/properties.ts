@@ -30,8 +30,9 @@ export const UserRoleApiProperty = createApiProperty({
 
 export const UserLanguageApiProperty = createApiProperty({
   description: `User's language.`,
-  type: UserLanguage,
-  example: 'en',
+  type: 'enum',
+  enum: UserLanguage,
+  example: UserLanguage.en,
 });
 
 export const UserTokenApiProperty = createApiProperty({

@@ -22,7 +22,8 @@ export const UserResourceUrlApiProperty = createApiProperty({
 
 export const UserResourceStatusApiProperty = createApiProperty({
   description: `User resource's status.`,
-  type: UserResourceStatus,
+  type: 'enum',
+  enum: UserResourceStatus,
   example: 'toRead',
 });
 
