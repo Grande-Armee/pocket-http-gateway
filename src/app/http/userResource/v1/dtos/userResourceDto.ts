@@ -1,41 +1,45 @@
-import { Expose } from 'class-transformer';
+import { ResourceDto, TagDto, UserResourceStatus } from '@grande-armee/pocket-common';
 
+import { ResourceIdApiProperty } from '@http/collection/v1/docs/properties';
 import { CreatedAtApiProperty, UpdatedAtApiProperty } from '@shared/docs/properties';
 
 import {
+  UserIdApiProperty,
   UserResourceIdApiProperty,
-  UserResourceUrlApiProperty,
-  UserResourceTitleApiProperty,
-  UserResourceThumbnailUrlApiProperty,
-  UserResourceContentApiProperty,
+  UserResourceRatingApiProperty,
+  UserResourceResourceApiProperty,
+  UserResourceStatusApiProperty,
+  UserResourceTagsApiProperty,
 } from '../docs/properties';
 
 export class UserResourceV1Dto {
-  @Expose()
   @UserResourceIdApiProperty()
   public id: string;
 
-  @Expose()
   @CreatedAtApiProperty()
-  public createdAt: string;
+  public createdAt: Date;
 
-  @Expose()
   @UpdatedAtApiProperty()
-  public updatedAt: string;
+  public updatedAt: Date;
 
-  @Expose()
-  @UserResourceUrlApiProperty()
-  public url: string;
+  @UserResourceStatusApiProperty()
+  public status: UserResourceStatus;
 
-  @Expose()
-  @UserResourceTitleApiProperty()
-  public title: string | null;
+  @UserResourceStatusApiProperty()
+  public isFavorite: boolean;
 
-  @Expose()
-  @UserResourceThumbnailUrlApiProperty()
-  public thumbnailUrl: string | null;
+  @UserResourceRatingApiProperty()
+  public rating: number | null;
 
-  @Expose()
-  @UserResourceContentApiProperty()
-  public content: string | null;
+  @UserResourceResourceApiProperty()
+  public resource: ResourceDto | null;
+
+  @ResourceIdApiProperty()
+  public resourceId: string;
+
+  @UserIdApiProperty()
+  public userId: string;
+
+  @UserResourceTagsApiProperty()
+  public tags: TagDto[] | null;
 }

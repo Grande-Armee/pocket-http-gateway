@@ -1,12 +1,14 @@
-import { Expose } from 'class-transformer';
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength, IsUUID } from 'class-validator';
 
-import { UserPasswordApiProperty } from '../docs/properties';
+import { UserPasswordApiProperty, UserIdApiProperty } from '../docs/properties';
 
 export class SetPasswordBodyV1Dto {
+  @IsUUID('4')
+  @UserIdApiProperty()
+  public readonly userId: string;
+
   @IsString()
   @MinLength(12)
-  @Expose()
   @UserPasswordApiProperty()
   public readonly password: string;
 }

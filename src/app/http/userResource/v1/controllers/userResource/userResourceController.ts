@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { DtoFactory, ResourceTransporter, UserResourceTransporter } from '@grande-armee/pocket-common';
 import {
   Body,
   Controller,
@@ -45,13 +45,13 @@ import {
   UpdateUserResourceResponseV1Dto,
   UpdateUserResourceQueryV1Dto,
 } from '../../dtos/updateUserResourceDto';
-import { UserResourceV1Service } from '../../services/userResource/userResourceService';
 
 @ApiTags('UserResources')
 @Controller({ version: '1', path: '/resources' })
 export class UserResourceV1Controller {
   public constructor(
-    private readonly userResourceService: UserResourceV1Service,
+    private readonly resourceTransporter: ResourceTransporter,
+    private readonly userResourceTransporter: UserResourceTransporter,
     private readonly dtoFactory: DtoFactory,
   ) {}
 
@@ -78,22 +78,27 @@ export class UserResourceV1Controller {
 
     const { url } = createUserResourceBody;
 
-    const result = await this.userResourceService.createUserResource({
-      userId,
+    const resourceResult = await this.resourceTransporter.createResource({
       url,
     });
 
-    console.log(result);
+    const userResourceResult = await this.userResourceTransporter.createUserResource({
+      userId,
+      resourceId: resourceResult.resource.id,
+    });
 
     return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        url: 'www.google.com',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: userResourceResult.userResource.id,
+        createdAt: userResourceResult.userResource.createdAt,
+        updatedAt: userResourceResult.userResource.updatedAt,
+        status: userResourceResult.userResource.status,
+        isFavorite: userResourceResult.userResource.isFavorite,
+        rating: userResourceResult.userResource.rating,
+        resource: userResourceResult.userResource.resource,
+        resourceId: userResourceResult.userResource.resourceId,
+        userId: userResourceResult.userResource.userId,
+        tags: userResourceResult.userResource.tags,
       },
     });
   }
@@ -124,22 +129,23 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.userResourceService.findUserResource({
+    const result = await this.userResourceTransporter.findUserResource({
       userId,
       resourceId,
     });
 
-    console.log(result);
-
-    return this.dtoFactory.create(FindUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: '12345',
-        createdAt: '12345',
-        updatedAt: '12345',
-        url: 'www.google.com',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.userResource.id,
+        createdAt: result.userResource.createdAt,
+        updatedAt: result.userResource.updatedAt,
+        status: result.userResource.status,
+        isFavorite: result.userResource.isFavorite,
+        rating: result.userResource.rating,
+        resource: result.userResource.resource,
+        resourceId: result.userResource.resourceId,
+        userId: result.userResource.userId,
+        tags: result.userResource.tags,
       },
     });
   }
@@ -171,23 +177,28 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.userResourceService.updateUserResource({
+    const { status, isFavorite, rating } = updateUserResourceBody;
+
+    const result = await this.userResourceTransporter.updateUserResource({
       userId,
       resourceId,
-      userResourceData: updateUserResourceBody,
+      status,
+      isFavorite,
+      rating,
     });
 
-    console.log(result);
-
-    return this.dtoFactory.create(UpdateUserResourceResponseV1Dto, {
+    return this.dtoFactory.create(CreateUserResourceResponseV1Dto, {
       userResource: {
-        id: '1234567',
-        createdAt: '1234567',
-        updatedAt: '1234567',
-        url: 'www.google.com',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.userResource.id,
+        createdAt: result.userResource.createdAt,
+        updatedAt: result.userResource.updatedAt,
+        status: result.userResource.status,
+        isFavorite: result.userResource.isFavorite,
+        rating: result.userResource.rating,
+        resource: result.userResource.resource,
+        resourceId: result.userResource.resourceId,
+        userId: result.userResource.userId,
+        tags: result.userResource.tags,
       },
     });
   }
@@ -217,7 +228,7 @@ export class UserResourceV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    await this.userResourceService.removeUserResource({
+    await this.userResourceTransporter.removeUserResource({
       userId,
       resourceId,
     });

@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { CollectionTransporter, DtoFactory } from '@grande-armee/pocket-common';
 import {
   Body,
   Controller,
@@ -41,14 +41,13 @@ import {
   UpdateCollectionResponseV1Dto,
   UpdateCollectionQueryV1Dto,
 } from '../../dtos/updateCollectionDto';
-import { CollectionV1Service } from '../../services/collection/collectionService';
 
 @ApiTags('Collections')
 @Controller({ version: '1', path: '/collections' })
 export class CollectionV1Controller {
   public constructor(
-    private readonly collectionService: CollectionV1Service,
     private readonly dtoFactory: DtoFactory,
+    private readonly collectionTransporter: CollectionTransporter,
   ) {}
 
   @ApiOperation({
@@ -65,26 +64,25 @@ export class CollectionV1Controller {
     @Query() createCollectionQuery: CreateCollectionQueryV1Dto,
     @BearerTokenPayload() authPayload: AuthPayload,
   ): Promise<CreateCollectionResponseV1Dto> {
-    const { userId } = createCollectionQuery;
+    const { userId, title } = createCollectionQuery;
 
     if (authPayload.userId !== userId) {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.collectionService.createCollection({
+    const result = await this.collectionTransporter.createCollection({
       userId,
+      title,
     });
-
-    console.log(result);
 
     return this.dtoFactory.create(CreateCollectionResponseV1Dto, {
       collection: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.collection.id,
+        createdAt: result.collection.createdAt,
+        updatedAt: result.collection.updatedAt,
+        title: result.collection.title,
+        thumbnailUrl: result.collection.thumbnailUrl,
+        content: result.collection.content,
       },
     });
   }
@@ -115,21 +113,19 @@ export class CollectionV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.collectionService.findCollection({
+    const result = await this.collectionTransporter.findCollection({
       userId,
       collectionId,
     });
 
-    console.log(result);
-
-    return this.dtoFactory.create(FindCollectionResponseV1Dto, {
+    return this.dtoFactory.create(CreateCollectionResponseV1Dto, {
       collection: {
-        id: '12345',
-        createdAt: '12345',
-        updatedAt: '12345',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.collection.id,
+        createdAt: result.collection.createdAt,
+        updatedAt: result.collection.updatedAt,
+        title: result.collection.title,
+        thumbnailUrl: result.collection.thumbnailUrl,
+        content: result.collection.content,
       },
     });
   }
@@ -161,22 +157,24 @@ export class CollectionV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    const result = await this.collectionService.updateCollection({
+    const { title, thumbnailUrl, content } = updateCollectionBody;
+
+    const result = await this.collectionTransporter.updateCollection({
       userId,
       collectionId,
-      collectionData: updateCollectionBody,
+      title,
+      thumbnailUrl,
+      content,
     });
 
-    console.log(result);
-
-    return this.dtoFactory.create(UpdateCollectionResponseV1Dto, {
+    return this.dtoFactory.create(CreateCollectionResponseV1Dto, {
       collection: {
-        id: '1234567',
-        createdAt: '1234567',
-        updatedAt: '1234567',
-        title: 'title',
-        thumbnailUrl: 'www.google.com',
-        content: 'content',
+        id: result.collection.id,
+        createdAt: result.collection.createdAt,
+        updatedAt: result.collection.updatedAt,
+        title: result.collection.title,
+        thumbnailUrl: result.collection.thumbnailUrl,
+        content: result.collection.content,
       },
     });
   }
@@ -206,7 +204,7 @@ export class CollectionV1Controller {
       throw new ForbiddenException('User id from auth token does not match user id from query.');
     }
 
-    await this.collectionService.removeCollection({
+    await this.collectionTransporter.removeCollection({
       userId,
       collectionId,
     });

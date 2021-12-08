@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { DtoFactory, UserResourceTagTransporter } from '@grande-armee/pocket-common';
 import {
   Controller,
   Delete,
@@ -30,13 +30,12 @@ import {
   CreateUserResourceTagQueryV1Dto,
 } from '../../dtos/createUserResourceTagDto';
 import { RemoveUserResourceTagParamsV1Dto, RemoveUserResourceTagQueryV1Dto } from '../../dtos/removeUserResourceTagDto';
-import { UserResourceTagV1Service } from '../../services/userResourceTag/userResourceTagService';
 
 @ApiTags('UserResourceTags')
 @Controller({ version: '1', path: '/resources/:resourceId/tags/:tagId' })
 export class UserResourceTagV1Controller {
   public constructor(
-    private readonly userResourceTagService: UserResourceTagV1Service,
+    private readonly userResourceTagTransporter: UserResourceTagTransporter,
     private readonly dtoFactory: DtoFactory,
   ) {}
 
@@ -63,7 +62,7 @@ export class UserResourceTagV1Controller {
 
     const { resourceId, tagId } = createUserResourceTagParams;
 
-    const result = await this.userResourceTagService.createUserResourceTag({
+    const result = await this.userResourceTagTransporter.createUserResourceTag({
       userId,
       resourceId,
       tagId,
@@ -108,7 +107,7 @@ export class UserResourceTagV1Controller {
 
     const { resourceId, tagId } = removeUserResourceTagParams;
 
-    await this.userResourceTagService.removeUserResourceTag({
+    await this.userResourceTagTransporter.removeUserResourceTag({
       userId,
       resourceId,
       tagId,

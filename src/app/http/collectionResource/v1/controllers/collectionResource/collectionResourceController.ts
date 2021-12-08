@@ -1,4 +1,4 @@
-import { DtoFactory } from '@grande-armee/pocket-common';
+import { CollectionResourceTransporter, DtoFactory } from '@grande-armee/pocket-common';
 import {
   Controller,
   Delete,
@@ -33,13 +33,12 @@ import {
   RemoveCollectionResourceParamsV1Dto,
   RemoveCollectionResourceQueryV1Dto,
 } from '../../dtos/removeCollectionResourceDto';
-import { CollectionResourceV1Service } from '../../services/collectionResource/collectionResourceService';
 
 @ApiTags('CollectionResources')
 @Controller({ version: '1', path: '/collections/:collectionId/resources/:resourceId' })
 export class CollectionResourceV1Controller {
   public constructor(
-    private readonly collectionResourceService: CollectionResourceV1Service,
+    private readonly collectionResourceTransporter: CollectionResourceTransporter,
     private readonly dtoFactory: DtoFactory,
   ) {}
 
@@ -66,22 +65,18 @@ export class CollectionResourceV1Controller {
 
     const { resourceId, collectionId } = createCollectionResourceParams;
 
-    const result = await this.collectionResourceService.createCollectionResource({
-      userId,
+    const result = await this.collectionResourceTransporter.createCollectionResource({
       resourceId,
       collectionId,
     });
 
-    console.log(result);
-
     return this.dtoFactory.create(CreateCollectionResourceResponseV1Dto, {
       collectionResource: {
-        id: '123',
-        createdAt: '123',
-        updatedAt: '123',
-        userId: '123',
-        resourceId: '123',
-        collectionId: '123',
+        id: result.collectionResource.id,
+        createdAt: result.collectionResource.createdAt,
+        updatedAt: result.collectionResource.updatedAt,
+        resourceId: result.collectionResource.resourceId,
+        collectionId: result.collectionResource.collectionId,
       },
     });
   }
@@ -111,8 +106,7 @@ export class CollectionResourceV1Controller {
 
     const { resourceId, collectionId } = removeCollectionResourceParams;
 
-    await this.collectionResourceService.removeCollectionResource({
-      userId,
+    await this.collectionResourceTransporter.removeCollectionResource({
       resourceId,
       collectionId,
     });
