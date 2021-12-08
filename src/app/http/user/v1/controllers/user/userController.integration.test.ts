@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
+import { AuthService } from '@http/auth/services/auth/authService';
 import { TestModuleHelper } from '@integration/helpers/testModuleHelper/testModuleHelper';
-import { AuthService } from '@src/app/http/auth/services/auth/authService';
 import { AuthHelper } from '@src/integration/helpers/authHelper/authHelper';
 import { HttpHelper, HttpMethod } from '@src/integration/helpers/httpHelper/httpHelper';
 

@@ -1,7 +1,7 @@
 import { ResourceDto, TagDto, UserResourceStatus } from '@grande-armee/pocket-common';
 
+import { ResourceIdApiProperty } from '@http/collection/v1/docs/properties';
 import { CreatedAtApiProperty, UpdatedAtApiProperty } from '@shared/docs/properties';
-import { ResourceIdApiProperty } from '@src/app/http/collection/v1/docs/properties';
 
 import {
   UserIdApiProperty,
